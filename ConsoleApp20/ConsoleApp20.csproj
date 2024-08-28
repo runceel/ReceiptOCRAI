@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>53cd8fbb-2b3b-4b69-862e-944f082b749c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="contoso-receipt.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="contoso-receipt.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.12.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.18.1-rc" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.18.1-alpha" />
+  </ItemGroup>
+
+</Project>
