@@ -30,7 +30,7 @@ var kernel = Kernel.CreateBuilder()
         new AzureCliCredential())
     .Build();
 
-var agent = new ChatCompletionAgent
+var ocr = new ChatCompletionAgent
 {
     Instructions = """
         あなたは世界最高品質の OCR ツールです。入力画像に対して適切な操作を行い必要最低限の回答をしてください。
@@ -43,14 +43,42 @@ var agent = new ChatCompletionAgent
     }),
 };
 
-ChatHistory chatHistory = [];
+var formatter = new ChatCompletionAgent
+{
+    Instructions = """
+        あなたは日付のフォーマッターです。
+        日付のテキストと画像からその画像の国や言語を判別をして日本の日付フォーマットに変換してください。
+
+        ### 期待される動作
+        - yyyy年mm月dd日HH時mm分 の形式で日付を出力してください。
+        - 日付以外の情報は出力しないでください。
+
+        ### 期待されない動作
+        - 日付以外の情報を出力すること
+        - 日付を元のものから変更すること
+        """,
+    Kernel = kernel,
+    Name = "DateTimeFormatter",
+    Arguments = new(new OpenAIPromptExecutionSettings
+    {
+        Temperature = 0.0,
+    }),
+};
+
+ChatHistory chatHistory = [] ;
 chatHistory.Add(new ChatMessageContent(
     AuthorRole.User,
     items: [
         new ImageContent(await File.ReadAllBytesAsync("contoso-receipt.png"), "image/jpeg"),
         new TextContent("レシート画像の中にある日付情報だけを抽出して回答してください。他の不要な情報は一切入れないでください。"),
     ]));
-await foreach (var message in agent.InvokeAsync(chatHistory))
+await foreach (var message in ocr.InvokeAsync(chatHistory))
+{
+    chatHistory.Add(message);
+    Console.WriteLine($"{message.AuthorName}({message.Role}): {message.Content}");
+}
+
+await foreach (var message in formatter.InvokeAsync(chatHistory))
 {
     chatHistory.Add(message);
     Console.WriteLine($"{message.AuthorName}({message.Role}): {message.Content}");
